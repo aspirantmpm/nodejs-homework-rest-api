@@ -1,13 +1,15 @@
-// const contactsAddSchema = require('../models/contacts');
+const Contacts = require("../models/contacts");
 
-const Contacts = require('../models/contacts');
-
-const { HttpError } = require('../helpers');
-
-const { ctrlWrapper } = require('../helpers');
+const { HttpError, ctrlWrapper } = require("../helpers");
 
 const getAll = async (req, res) => {
-  const result = await Contacts.find();
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const result = await Contacts.find({ owner }, "-creeatedAt -updatedAt", {
+    skip,
+    limit,
+  }).populate("owner", "email name");
   res.json(result);
 };
 
@@ -15,13 +17,14 @@ const getById = async (req, res) => {
   const { id } = req.params;
   const result = await Contacts.findById(id);
   if (!result) {
-    throw HttpError(404, 'Not found');
+    throw HttpError(404, "Not found");
   }
   res.json(result);
 };
 
 const add = async (req, res) => {
-  const result = await Contacts.addContact(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contacts.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
@@ -29,7 +32,7 @@ const updateById = async (req, res) => {
   const { id } = req.params;
   const result = await Contacts.findByIdAndUpdate(id, req.body, { new: true });
   if (!result) {
-    throw HttpError(404, 'Not found');
+    throw HttpError(404, "Not found");
   }
   res.json(result);
 };
@@ -38,7 +41,7 @@ const updateFavorite = async (req, res) => {
   const { id } = req.params;
   const result = await Contacts.findByIdAndUpdate(id, req.body, { new: true });
   if (!result) {
-    throw HttpError(400, 'Missing field favorite');
+    throw HttpError(400, "Missing field favorite");
   }
   res.json(result);
 };
@@ -47,9 +50,9 @@ const deleteById = async (req, res) => {
   const { id } = req.params;
   const result = await Contacts.findByIdAndRemove(id);
   if (!result) {
-    throw HttpError(404, 'Not found');
+    throw HttpError(404, "Not found");
   }
-  res.json({ message: 'contact deleted' });
+  res.json({ message: "contact deleted" });
 };
 
 module.exports = {
