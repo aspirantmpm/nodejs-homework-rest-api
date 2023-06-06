@@ -1705,7 +1705,7 @@ mongodb@5.5.0:
   optionalDependencies:
     saslprep "^1.0.3"
 
-mongoose@^7.2.2:
+mongoose@^7.1.0:
   version "7.2.2"
   resolved "https://registry.npmjs.org/mongoose/-/mongoose-7.2.2.tgz"
   integrity sha512-JPBMTF+oYfLGVFWbHSZ/H+f1GajNanGLYH6c/P0nE3bNJfwGhX573vieGR0kNlNhj3cZk8WCPrnVsTNeUmFUag==
