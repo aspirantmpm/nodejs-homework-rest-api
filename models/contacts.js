@@ -48,4 +48,4 @@ const schemas = { contactsAddSchema, updateFavoriteSchema };
 
 const Contacts = model("contacts", contactsSchema);
 
-module.exports = { Contacts, schemas };
+module.exports = { Contacts, schemas, };
