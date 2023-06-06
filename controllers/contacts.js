@@ -11,7 +11,6 @@ const getAll = async (req, res) => {
   const { _id: owner } = req.user;
   const { page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
-  console.log(Contacts);
   const result = await Contacts.find({ owner }, '-creeatedAt -updatedAt', {
     skip,
     limit,
@@ -32,7 +31,7 @@ const add = async (req, res) => {
   const { path: oldPath, filename } = req.file;
   const newPath = path.join(avatarPath, filename);
   await fs.rename(oldPath, newPath);
-  const avatar = path.join("public", "avatars", filename);
+  const avatar = path.join('public', 'avatars', filename);
   const { _id: owner } = req.user;
   const result = await Contacts.create({ ...req.body, avatar, owner });
   res.status(201).json(result);

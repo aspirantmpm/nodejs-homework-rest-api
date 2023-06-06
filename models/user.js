@@ -24,6 +24,7 @@ const userSchema = new Schema({
   avatarURL: {
     type: String,
     default: '',
+    required: true,
   },
   subscription: {
     type: String,
