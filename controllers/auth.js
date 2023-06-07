@@ -4,12 +4,13 @@ const gravatar = require('gravatar');
 const path = require('path');
 const fs = require('fs/promises');
 const Jimp = require('jimp');
+const { nanoid } = require('nanoid');
 
 const { User } = require('../models/user');
 
-const { ctrlWrapper, HttpError } = require('../helpers');
+const { ctrlWrapper, HttpError, sendEmail } = require('../helpers');
 
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, BASE_URL } = process.env;
 
 const avatarDir = path.join(__dirname, '../', 'public', 'avatars');
 
@@ -21,11 +22,22 @@ const register = async (req, res) => {
   }
   const newAvatarUrl = gravatar.url(email, { default: 'robohash' });
   const hashPassword = await bcrypt.hash(password, 10);
+  const verificationToken = nanoid();
+
   const newUser = await User.create({
     ...req.body,
     password: hashPassword,
     avatarURL: newAvatarUrl,
+    verificationToken,
   });
+  const veryfyEmail = {
+    to: email,
+    subject: 'Verify email',
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/veryfy/${verificationToken}">Click veryfy email</a>`,
+  };
+
+  await sendEmail(veryfyEmail);
+
   res.status(201).json({
     name: newUser.name,
     email: newUser.email,
