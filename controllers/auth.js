@@ -60,6 +60,28 @@ const veryfyEmail = async (req, res) => {
   });
 };
 
+const resendVeryfyEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+    if (!user) {
+      throw HttpError(404, 'User not found');
+  };
+    if (user.veryfy) {
+      throw HttpError(401, 'Email already verify');
+  };
+    const veryfyEmail = {
+      to: email,
+      subject: 'Verify email',
+      html: `<a target="_blank" href="${BASE_URL}/api/auth/veryfy/${user.verificationToken}">Click veryfy email</a>`,
+  };
+
+  await sendEmail(veryfyEmail);
+  
+  res.json({
+    message: "Veryfy email send sucess"
+  });
+}
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -122,6 +144,7 @@ const updateAvatar = async (req, res) => {
 module.exports = {
   register: ctrlWrapper(register),
   veryfyEmail: ctrlWrapper(veryfyEmail),
+  resendVeryfyEmail: ctrlWrapper(resendVeryfyEmail),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
