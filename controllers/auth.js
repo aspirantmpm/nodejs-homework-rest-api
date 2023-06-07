@@ -51,10 +51,7 @@ const veryfyEmail = async (req, res) => {
   if (!user) {
     throw HttpError(404, 'User not found');
   }
-  await User.findByIdAndUpdate(
-    user._id,
-    { veryfy: true, verificationToken: '' },
-  );
+  await User.findByIdAndUpdate(user._id, { veryfy: true, verificationToken: '' });
   res.json({
     message: 'Verification successful',
   });
@@ -63,24 +60,24 @@ const veryfyEmail = async (req, res) => {
 const resendVeryfyEmail = async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
-    if (!user) {
-      throw HttpError(404, 'User not found');
-  };
-    if (user.veryfy) {
-      throw HttpError(401, 'Email already verify');
-  };
-    const veryfyEmail = {
-      to: email,
-      subject: 'Verify email',
-      html: `<a target="_blank" href="${BASE_URL}/api/auth/veryfy/${user.verificationToken}">Click veryfy email</a>`,
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  if (user.veryfy) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+  const veryfyEmail = {
+    to: email,
+    subject: 'Verify email',
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/veryfy/${user.verificationToken}">Click veryfy email</a>`,
   };
 
   await sendEmail(veryfyEmail);
-  
+
   res.json({
-    message: "Veryfy email send sucess"
+    message: 'Verification email sent',
   });
-}
+};
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -90,7 +87,7 @@ const login = async (req, res) => {
   }
 
   if (!user.veryfy) {
-    throw HttpError(401, "Email not veryfy");
+    throw HttpError(401, 'Email not veryfy');
   }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
@@ -130,7 +127,7 @@ const updateAvatar = async (req, res) => {
 
   const resultUpload = path.join(avatarDir, filename);
   await fs.rename(tmp, resultUpload);
-  const avatarURL = path.join("public",'avatars', filename);
+  const avatarURL = path.join('public', 'avatars', filename);
   const newSizeFile = await Jimp.read(avatarURL);
   await newSizeFile.resize(250, 250);
   await newSizeFile.writeAsync(avatarURL);
