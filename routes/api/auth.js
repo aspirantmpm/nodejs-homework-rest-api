@@ -10,6 +10,8 @@ const router = express.Router();
 
 router.post('/register', validateBody(schemas.registerSchema), ctrl.register);
 
+router.get("/veryfy/:veryficationToken", ctrl.veryfyEmail);
+
 router.post('/login', validateBody(schemas.loginSchema), ctrl.login);
 
 router.get('/current', authenticate, ctrl.getCurrent);

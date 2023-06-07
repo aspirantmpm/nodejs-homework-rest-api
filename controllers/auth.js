@@ -45,11 +45,30 @@ const register = async (req, res) => {
   });
 };
 
+const veryfyEmail = async (req, res) => {
+  const { verificationToken } = req.param;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  await User.findByIdAndUpdate(
+    user._id,
+    { veryfy: true, verificationToken: '' },
+  );
+  res.json({
+    message: 'Verification successful',
+  });
+};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     throw HttpError(401, 'Email or password invalid');
+  }
+
+  if (!user.veryfy) {
+    throw HttpError(401, "Email not veryfy");
   }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
@@ -102,6 +121,7 @@ const updateAvatar = async (req, res) => {
 
 module.exports = {
   register: ctrlWrapper(register),
+  veryfyEmail: ctrlWrapper(veryfyEmail),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
