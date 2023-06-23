@@ -10,7 +10,9 @@ const { schemas } = require('../../models/contacts');
 
 router.get('/', authenticate, ctrl.getAll);
 
-router.get('/:id', authenticate, isValidId, ctrl.getById);
+router.get('/:id',
+  authenticate,
+  isValidId, ctrl.getById);
 
 router.post(
   '/',
